@@ -1,0 +1,4 @@
+Log4cpp is a logging component for C/C++. log4cpp is a fork of the apache log4cxx project.
+I decided to open a new public repository to incorporate the patches which have been provided by willing developers into for integration into the main stream of the log4cxx.
+
+Darko Palic (darko [dot] palic [at] gmx [dot] de)

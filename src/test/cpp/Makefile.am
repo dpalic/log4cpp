@@ -24,7 +24,7 @@ noinst_HEADERS = \
 
 INCLUDES = -I$(top_srcdir)/src/main/include -I$(top_builddir)/src/main/include
 
-noinst_PROGRAMS = testsuite
+check_PROGRAMS = testsuite
 
 customlogger_tests = \
 	customlogger/xlogger.cpp\
@@ -35,6 +35,14 @@ defaultinit_tests = \
 	defaultinit/testcase2.cpp\
 	defaultinit/testcase3.cpp\
 	defaultinit/testcase4.cpp
+    
+filter_tests = \
+    filter/andfiltertest.cpp\
+    filter/denyallfiltertest.cpp\
+    filter/levelmatchfiltertest.cpp\
+    filter/levelrangefiltertest.cpp\
+    filter/loggermatchfiltertest.cpp\
+    filter/stringmatchfiltertest.cpp
 
 helpers = \
         helpers/absolutetimedateformattestcase.cpp \
@@ -53,6 +61,7 @@ helpers = \
         helpers/stringtokenizertestcase.cpp \
         helpers/stringhelpertestcase.cpp \
         helpers/syslogwritertest.cpp \
+        helpers/threadtestcase.cpp \
         helpers/timezonetestcase.cpp \
         helpers/transcodertestcase.cpp
 
@@ -118,6 +127,7 @@ nt_tests = \
 testsuite_SOURCES = \
         $(customlogger_tests) \
         $(defaultinit_tests) \
+        $(filter_tests) \
         $(helpers) \
         $(net_tests) \
         $(pattern_tests) \
@@ -147,7 +157,8 @@ testsuite_SOURCES = \
         streamtestcase.cpp\
         writerappendertestcase.cpp \
         ndctestcase.cpp \
-        propertyconfiguratortest.cpp 
+        propertyconfiguratortest.cpp \
+        mdctestcase.cpp
 
 testsuite_LDADD = \
         $(top_builddir)/src/main/cpp/liblog4cxx.la

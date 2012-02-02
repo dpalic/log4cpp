@@ -65,6 +65,11 @@ SocketAppenderSkeleton::SocketAppenderSkeleton(const LogString& host, int port1,
 SocketAppenderSkeleton::~SocketAppenderSkeleton()
 {
         finalize();
+        try {
+            thread.join();
+        } catch(ThreadException& ex) {
+            LogLog::error(LOG4CXX_STR("Error closing socket appender connection thread"), ex);
+        }
 }
 
 void SocketAppenderSkeleton::activateOptions(Pool& p)
@@ -130,7 +135,7 @@ void SocketAppenderSkeleton::setOption(const LogString& option, const LogString&
 void SocketAppenderSkeleton::fireConnector()
 {
         synchronized sync(mutex);
-        if (thread.isActive()) {
+        if (!thread.isActive()) {
                 thread.run(monitor, this);
         }
 }
@@ -144,13 +149,19 @@ void* LOG4CXX_THREAD_FUNC SocketAppenderSkeleton::monitor(apr_thread_t* /* threa
                 try
                 {
                         Thread::sleep(socketAppender->reconnectionDelay);
-                        LogLog::debug(LogString(LOG4CXX_STR("Attempting connection to "))
+                        if(!socketAppender->closed) {
+                            LogLog::debug(LogString(LOG4CXX_STR("Attempting connection to "))
                                 + socketAppender->address->getHostName());
-                        socket = new Socket(socketAppender->address, socketAppender->port);
-                        Pool p;
-                        socketAppender->setSocket(socket, p);
-                        LogLog::debug(LOG4CXX_STR("Connection established. Exiting connector thread."));
+                            socket = new Socket(socketAppender->address, socketAppender->port);
+                            Pool p;
+                            socketAppender->setSocket(socket, p);
+                            LogLog::debug(LOG4CXX_STR("Connection established. Exiting connector thread."));
+                        }
                         return NULL;
+                }
+                catch(InterruptedException&) {
+                    LogLog::debug(LOG4CXX_STR("Connector interrupted.  Leaving loop."));
+                    return NULL;
                 }
                 catch(ConnectException&)
                 {

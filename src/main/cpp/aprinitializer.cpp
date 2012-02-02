@@ -30,6 +30,13 @@ using namespace log4cxx;
 
 bool APRInitializer::isDestructed = false;
 
+
+namespace {
+ 	extern "C" void tlsDestruct(void* ptr) {
+  		delete ((ThreadSpecificData*) ptr);
+	}
+}
+
 APRInitializer::APRInitializer() {
     apr_initialize();
     apr_pool_create(&p, NULL);
@@ -64,6 +71,3 @@ apr_threadkey_t* APRInitializer::getTlsKey() {
    return getInstance().tlsKey;
 }
 
-void APRInitializer::tlsDestruct(void* ptr) {
-  delete ((ThreadSpecificData*) ptr);
-}
